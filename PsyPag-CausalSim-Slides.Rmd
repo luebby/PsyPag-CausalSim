@@ -146,7 +146,7 @@ Or as [Thomas Lumley](https://notstatschat.rbind.io/2021/05/02/generalisability-
 
 ## Some lessons you may already know
 
-- Data is not just there - it has a generating process and we should care about this. Simulations are very good way to think about this.
+- Data is not just there - it has a generating process and we should care about this. Simulations are very good way to illustrate this.
 
 - Confounding and bias can be serious issues for causal inference.
 
@@ -428,14 +428,6 @@ class: center, inverse, middle
 
 ---
 
-## Simpson's Paradox
-
-.center[<iframe width="560" height="315" src="https://www.youtube.com/embed/nGqzoqXZch0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>]
-
-.footnote[[Rafael Moral: Summary Song #8 - Simpson's Paradox](https://youtu.be/nGqzoqXZch0)]
-
----
-
 ## Test Score
 
 .pull-left[
@@ -482,9 +474,9 @@ test.score <-                                  # Y #<<
 ```{r Fork-sol}
 set.seed(1896) # Reproducibility
 n <- 1000 # Sample Size
-intelligence <- rnorm(n, mean = 100, sd = 15)
-learning.time <- 200 - intelligence + rnorm(n)
-test.score <-  0.5 * intelligence + 0.1 * learning.time + rnorm(n) #<<
+intelligence <- rnorm(n, mean = 100, sd = 15)                      # Z
+learning.time <- 200 - intelligence + rnorm(n)                     # X
+test.score <-  0.5 * intelligence + 0.1 * learning.time + rnorm(n) # Y #<<
 # Putting it all together
 Sim_fork <- data.frame(learning.time, intelligence, test.score)
 ```
@@ -528,6 +520,14 @@ Which estimator is better for estimating the total causal effect of .green[learn
 A: *Without* adjusting for .violet[Intelligence]: $\hat{\beta}_{\color{green}{learning.time}} = `r round(coef(res1_S2)[2],2)`$ (`res1_S2`).
 
 B: *With* adjusting for .violet[Intelligence]: $\hat{\beta}_{\color{green}{learning.time}} = `r round(coef(res2_S2)[2],2)`$ (`res2_S2`).
+
+---
+
+## Simpson's Paradox
+
+.center[<iframe width="560" height="315" src="https://www.youtube.com/embed/nGqzoqXZch0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>]
+
+.footnote[[Rafael Moral: Summary Song #8 - Simpson's Paradox](https://youtu.be/nGqzoqXZch0)]
 
 ---
 
@@ -679,7 +679,7 @@ B: *With* adjusting for .violet[Intelligence]: $\hat{\beta}_{\color{green}{look}
 
 ---
 
-## What is going on?
+## Berkson's Paradox
 
 .pull-left[
 
@@ -740,7 +740,7 @@ Sim_date <- Sim_collider %>%
 cor(kind ~ look, data = Sim_date)
 ```
 
-So $r=`r round(cor(kind ~ look, data = Sim_date) ,2)`$ although by construction $\rho = 0$. 
+So in your sample $r=`r round(cor(kind ~ look, data = Sim_date) ,2)`$ although by construction $\rho = 0$. 
 
 There were reasons why you dated someone - if it wasn't the good looking it must have been the kindness - or luck `r icon_style(fontawesome("heart", style = "solid"), fill = "red")`
 
