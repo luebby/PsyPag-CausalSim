@@ -131,16 +131,16 @@ DAG_Collider <- dagify(Z ~ Y,
 ```
 
 
-class: center, inverse
+class: center
 background-image: url("img/RedBlue-Causal.jpg")
 
 ---
 
 class: center, inverse, middle
 
-Or as [Thomas Lumley put it:](https://notstatschat.rbind.io/2021/05/02/generalisability-prediction-and-causation/)
+Or as [Thomas Lumley](https://notstatschat.rbind.io/2021/05/02/generalisability-prediction-and-causation/) put it:
 
-> In causal inference you choose your model so that one of the coefficients means what you want it to mean
+> **In causal inference you choose your model so that one of the coefficients means what you want it to mean**
 
 ---
 
@@ -164,6 +164,8 @@ Or as [Thomas Lumley put it:](https://notstatschat.rbind.io/2021/05/02/generalis
 `r fontawesome("sad-tear", style = "solid")` I am not a native speaker.
 
 `r fontawesome("sad-tear", style = "solid")` or `r fontawesome("grin", style = "solid")`? This is an intro workshop.
+
+`r fontawesome$brands$"r-project"` You can  copy-paste the code from the slides (link in chat) in a R script. `File -> New File -> R Script`
 
 ]
 
@@ -192,13 +194,13 @@ install.packages("mosaic")
 
 class: center, inverse, middle
 
-# Motivation
+# Intro
 
 ---
 
 ## Gender Pay Gap (I/II)
 
-Payment in fictious company:
+Payment in fictitious company:
 
 
 |                    | Female      | Male        |
@@ -213,7 +215,7 @@ Payment in fictious company:
 
 ## Gender Pay Gap (II/II)
 
-What do you think ist the magnitude of the gender pay gap for women in this company?
+What do you think is the magnitude of the gender pay gap for women in this company?
 
 <br>
 
@@ -225,7 +227,7 @@ B. Adjusted for job: $\frac{(3100-3000) \cdot (80+60)}{200}-\frac{(5850-5500) \c
 
 ## Lifestyle Pay Gap (I/II)
 
-Payment in fictious company:
+Payment in fictitious company:
 
 
 |                    | Healthy Lifestyle | Unhealthy Lifestyle |
@@ -240,7 +242,7 @@ Payment in fictious company:
 ## Lifestyle Pay Gap (II/II)
 
 
-What do you think ist the magnitude of the healthy pay gap in this company?
+What do you think is the magnitude of the healthy pay gap in this company?
 
 <br> 
 
@@ -310,7 +312,7 @@ First simulated example:
 
 ## Math - or `R`?
 
-$\color{green}{X}$: .green[learning], $\color{violet}{Z}$: .violet[knowing], $\color{blue}{Y}$: .blue[understanding]. *Structual Causal Model*:
+$\color{green}{X}$: .green[learning], $\color{violet}{Z}$: .violet[knowing], $\color{blue}{Y}$: .blue[understanding]. *Structural Causal Model*:
 
 \begin{eqnarray*}
 \color{green}{X} &=& U_{\color{green}{X}}, \quad U_{\color{green}{X}} \sim \mathcal{N}(0,\,1), \\
@@ -323,9 +325,9 @@ In `R`:
 ```{r Chain}
 set.seed(1896) # Reproducibility
 n <- 1000 # Sample Size
-learning <- rnorm(n)
-knowing <- 5 * learning + rnorm(n)
-understanding <- 3 * knowing + rnorm(n)
+learning <- rnorm(n)                    # X
+knowing <- 5 * learning + rnorm(n)      # Z
+understanding <- 3 * knowing + rnorm(n) # Y
 ```
 
 ---
@@ -391,7 +393,7 @@ B: *With* adjusting for .violet[knowing]: $\hat{\beta}_{\color{green}{learning}}
 
 - $\color{green}{X} \rightarrow \color{blue}{Y}: \quad \color{blue}{Y}=f(\color{green}{X}, U_{\color{blue}{Y}})$ with some function $f(\cdot)$ and some exogenous $U$. 
 
-- The value of $\color{blue}{Y}$ depends on $\color{green}{X}$ - but the value of $\color{green}{X}$ **not** on $\color{blue}{Y}$. 
+- The value of $\color{blue}{Y}$ depends on $\color{green}{X}$ - but the value of $\color{green}{X}$ .red[not] on $\color{blue}{Y}$. 
 
 - Causally there is no inverse function $f^{-1}(\cdot)$. My .blue[weight] growths with my .green[height] but unfortunately my .green[height] not with my .blue[weight] `r fontawesome("sad-tear", style = "solid")`
 
@@ -461,9 +463,9 @@ plot(DAG_Fork)
 ```{r Fork, eval=FALSE}
 set.seed(1896) # Reproducibility
 n <- 1000 # Sample Size
-intelligence <- rnorm(n, mean = 100, sd = 15)
-learning.time <- 200 - intelligence + rnorm(n)
-test.score <- #<<
+intelligence <- rnorm(n, mean = 100, sd = 15)  # Z
+learning.time <- 200 - intelligence + rnorm(n) # X
+test.score <-                                  # Y #<<
 ```
 
 ---
@@ -542,7 +544,7 @@ B: *With* adjusting for .violet[Intelligence]: $\hat{\beta}_{\color{green}{learn
 ## Randomized Controlled Trial
 
 .pull-left[
-Within a randomized controlled trial observation $i$ is randomly assigend to $\color{green}{x}_i$. The connections to the *parents* of $\color{green}{X}$ is cut.
+Within a randomized controlled trial observation $i$ is randomly assigned to $\color{green}{x}_i$. The connections to the *parents* of $\color{green}{X}$ is cut.
 ]
 
 .pull-right[
@@ -604,11 +606,11 @@ plot(DAG_Collider)
 set.seed(1896) # Reproducibility
 n <- 1000 # Sample Size
 
-kind <- rnorm(n)
-look <- rnorm(n)
-dating <- ((kind > 1) | (look > 1)) 
-luck <- rbinom(n, size = 1, prob = 0.05)
-dating <- (1 - luck) * dating + luck * (1 - dating)
+kind <- rnorm(n)                                    # X
+look <- rnorm(n)                                    # Y
+dating <- ((kind > 1) | (look > 1))                 # ~Z
+luck <- rbinom(n, size = 1, prob = 0.05)            # U_Z
+dating <- (1 - luck) * dating + luck * (1 - dating) # Z
 ```
 
 ---
@@ -681,7 +683,7 @@ B: *With* adjusting for .violet[Intelligence]: $\hat{\beta}_{\color{green}{look}
 
 .pull-left[
 
-Scatterplot of the data:
+Scatter plot of the data:
 
 ```{r plot-collider, eval=FALSE}
 gf_point(kind ~ look, 
@@ -738,11 +740,13 @@ Sim_date <- Sim_collider %>%
 cor(kind ~ look, data = Sim_date)
 ```
 
+So $r=`r round(cor(kind ~ look, data = Sim_date) ,2)`$ although by construction $\rho = 0$. 
+
 There were reasons why you dated someone - if it wasn't the good looking it must have been the kindness - or luck `r icon_style(fontawesome("heart", style = "solid"), fill = "red")`
 
 ---
 
-class: center, inverse
+class: center
 background-image: url("img/DAG-Wald.jpg")
 
 ---
@@ -754,8 +758,9 @@ Adjusting for a Collider?
 
 --
 
-.center[<iframe src="https://giphy.com/embed/gKHdgV9yXV6LWHWnGD" width="280" height="280" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>] 
-.footnote[[via GIPHY](https://giphy.com/gifs/CBSAllAccess-taylor-tell-me-a-story-tmas210-gKHdgV9yXV6LWHWnGD)]
+
+.center[<iframe src="https://giphy.com/embed/d95sQmhjga3hJPAzZ4" width="280" height="160" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>] 
+.footnote[[via GIPHY](https://giphy.com/gifs/snl-saturday-night-live-season-45-d95sQmhjga3hJPAzZ4)]
 
 BTW: **[DAGitty](http://dagitty.net/)** would have told you so `r fontawesome("grin", style = "solid")`
 
@@ -770,9 +775,14 @@ class: center, inverse, middle
 
 ## If you just woken up
 
+<br> 
+
 .center[Simulated Data to Introduce Causal Inference]
 
+<br>
+
 `r fontawesome("hand-point-right", style = "solid")` Causality and directed acyclic graphs together with data simulations may help to develop a framework to think about the data generating process.
+
 
 ---
 
@@ -807,11 +817,13 @@ Is (unconscious?) wishful thinking really better?
 
 # Own work and contact
 
-- [Lübke, K., Gehrke, M., Horst, J. & Szepannek, G. (2020). Why We Should Teach Causal Inference: Examples in Linear Regression with Simulated Data, Journal of Statistics Education.](https://doi.org/10.1080/10691898.2020.1752859) 
+- Source `r fontawesome$brands$github`:  [https://github.com/luebby/PsyPag-CausalSim](https://github.com/luebby/PsyPag-CausalSim)
+- Paper: [Lübke, K., Gehrke, M., Horst, J. & Szepannek, G. (2020). Why We Should Teach Causal Inference: Examples in Linear Regression with Simulated Data, Journal of Statistics Education.](https://doi.org/10.1080/10691898.2020.1752859) 
 
-- learnR Tutorial with real data: [https://fomshinyapps.shinyapps.io/CausalInference/](https://fomshinyapps.shinyapps.io/CausalInference/)
+- learnR Tutorial: [https://fomshinyapps.shinyapps.io/CausalInference/](https://fomshinyapps.shinyapps.io/CausalInference/)
 
 <br>
+
 
 - `r fontawesome("envelope", style = "solid")`:  [karsten.luebke@fom.de](<mailto:karsten.luebke@fom.de>)
 - `r fontawesome("twitter", style = "brands")`:  [@luebby42](https://twitter.com/luebby42)
