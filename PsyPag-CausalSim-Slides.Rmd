@@ -1,0 +1,818 @@
+---
+title: "Simulated Data to Introduce Causal Inference"
+subtitle: "PsyPag & MSCP-Section Simulation Summer School"  
+author: 
+  - "Karsten Lübke"
+date: "23.06.2021"
+output:
+  xaringan::moon_reader:
+    includes:
+      after_body: insert-logo.html
+    lib_dir: libs
+    css: xaringan-themer.css
+    nature:
+      ratio: '16:9'
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(out.width="80%", fig.align = "center")
+
+# remotes::install_github("mitchelloharawild/icons")
+# download_fontawesome()
+
+library(icons)
+library(knitr)
+library(ggplot2)
+
+theme.fom <- theme_classic(22*1.04)
+theme.fom <- theme.fom
+theme_set(
+  theme.fom  
+)
+
+```
+
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+
+style_xaringan(
+  header_color = "#00998A",
+  inverse_background_color = "#00998A",
+  footnote_font_size = "0.7rem",
+  background_color = "#f3f3f3",
+  base_font_size = "24px",
+  text_font_size = "1.2rem",
+  colors =c(
+    grey = "#5E6974",
+    green = "#0F710B",
+    red = "#F34213",
+    blue = "#0000FF",
+    orange = "#FF8811",
+    violet = "#DA70D6",
+    purple = "#7A378B",
+    olive = "#808000")
+  )
+```
+
+
+```{r dags, include=FALSE}
+library(ggdag)
+
+# DAGs in Motivation
+co <- data.frame(x=c(0,0,1), y=c(0,1,0), name=c("X", "Z", "Y")) 
+DAG_Mot1 <- dagify(Z ~ X,
+                   Y ~ X,
+                   Y ~ Z, coords = co) %>% 
+  ggdag(node_size = 15, text_size = 8, text = TRUE, text_col = "lightgray") + theme_dag_blank() +
+  geom_dag_edges(arrow_directed = grid::arrow(length = grid::unit(12, "pt"), type = "closed"))  + 
+  geom_text(label = "X - Gender\nZ - Management\nY - Pay", 
+            hjust = 1, vjust = 1,
+            x = 1, y = 1, size = 7, color = "darkgrey") +
+  labs(title = "Model 1")
+
+DAG_Mot2 <- dagify(X ~ Z,
+                   Y ~ X,
+                   Y ~ Z, coords = co) %>% 
+  ggdag(node_size = 15, text_size = 8, text = TRUE, text_col = "lightgray") + theme_dag_blank() +
+  geom_dag_edges(arrow_directed = grid::arrow(length = grid::unit(12, "pt"), type = "closed"))  + 
+  geom_text(label = "X - Lifestyle\nZ - Management\nY - Pay", 
+            hjust = 1, vjust = 1,
+            x = 1, y = 1, size = 7, color = "darkgrey") +
+  labs(title = "Model 2")
+
+# Chain
+co <- data.frame(x=c(0,1,2), y=c(0,0,0), name=c("X", "Z", "Y")) 
+DAG_Chain <- dagify(C ~ X, 
+                    Y ~ C, coords = co) %>%
+  ggdag(node_size = 20, text_size = 8, text = TRUE, text_col = "lightgray") + theme_dag_blank() +
+  geom_dag_edges(arrow_directed = grid::arrow(length = grid::unit(15, "pt"), type = "closed"))  + 
+  geom_text(label = "X - Learning\nZ - Knowing\nY - Understanding",
+            hjust = 0, vjust = 1,
+            x = 0, y = -0.025, size = 7, color = "darkgrey")
+
+# Fork
+co <- data.frame(x=c(0,0,1), y=c(1,0,0), name=c("X", "Z", "Y")) 
+
+DAG_Fork <- dagify(X ~ Z,
+       Y ~ X,
+       Y ~ Z, coords = co) %>% 
+  ggdag(node_size = 20, text_size = 8, text = TRUE, text_col = "lightgray") + theme_dag_blank() +
+  geom_dag_edges(arrow_directed = grid::arrow(length = grid::unit(15, "pt"), type = "closed"))  + 
+  geom_text(label = "Z - Intelligence\nX - Learning Time\nY - Test Score", 
+            hjust = 1, vjust = 1,
+            x = 1, y = 1, size = 7, color = "darkgrey")
+
+# Experiment
+co <- data.frame(x=c(0,0,1,-1), y=c(1,0,0,0), name=c("Z", "X", "Y", "E")) 
+
+DAG_Experiment <- dagify(Y ~ X,
+       X ~ E,
+       Y ~ Z, coords = co) %>% 
+  ggdag(node_size = 20, text_size = 8, text = TRUE, text_col = "lightgray") + theme_dag_blank() +
+  geom_dag_edges(arrow_directed = grid::arrow(length = grid::unit(15, "pt"), type = "closed"))  + 
+  geom_text(label = "Z - Intelligence\nX - Learning Time\nY - Test Score\nE - Experimenter", 
+            hjust = 0, vjust = 1,
+            x = -1.1, y = 0.75, size = 7, color = "darkgrey")
+
+# Collider
+co <- data.frame(x=c(0,1,2), y=c(1,0,1), name=c("Y","Z","X"))
+
+DAG_Collider <- dagify(Z ~ Y,
+                  Z ~ X, coords = co) %>% 
+  ggdag(node_size = 20, text_size = 8, text = TRUE, text_col = "lightgray") + theme_dag_blank() +
+  geom_dag_edges(arrow_directed = grid::arrow(length = grid::unit(15, "pt"), type = "closed"))  + 
+  geom_text(label = "Y - Looking\nX - Kindness\nZ - Date",
+            hjust = 0.5, vjust = 1,
+            x = 1, y = 1, size = 7, color = "darkgrey")
+```
+
+
+class: center, inverse
+background-image: url("img/RedBlue-Causal.jpg")
+
+---
+
+class: center, inverse, middle
+
+Or as [Thomas Lumley put it:](https://notstatschat.rbind.io/2021/05/02/generalisability-prediction-and-causation/)
+
+> In causal inference you choose your model so that one of the coefficients means what you want it to mean
+
+---
+
+## Some lessons you may already know
+
+- Data is not just there - it has a generating process and we should care about this. Simulations are very good way to think about this.
+
+- Confounding and bias can be serious issues for causal inference.
+
+- Adjusting or not adjusting: Both  can be bad ideas for causal inference.
+
+- Structural causal models and directed acyclic graphs can help to build a bridge between reality, theory and data.
+
+---
+
+
+## What you should know before we start
+
+.pull-left[
+
+`r fontawesome("sad-tear", style = "solid")` I am not a native speaker.
+
+`r fontawesome("sad-tear", style = "solid")` or `r fontawesome("grin", style = "solid")`? This is an intro workshop.
+
+]
+
+.pull-right[
+.center[<iframe src="https://giphy.com/embed/lnLvialVDFy4UQOmDl" width="360" height="300" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>] 
+.footnote[[via GIPHY](https://giphy.com/gifs/lnLvialVDFy4UQOmDl)]
+]
+
+---
+
+## What else?
+
+- Please ask questions!
+
+  > Don’t be afraid to ask a question that may sound stupid because 99% of the time everyone else is thinking of the same question and is too embarrassed to ask it. [Kevin Kelly](https://kk.org/thetechnium/68-bits-of-unsolicited-advice/)
+
+- We will use the R package [mosaic](https://cran.r-project.org/package=mosaic). You *may* need to install it first:
+
+```{r install-mosaic, eval = FALSE}
+install.packages("mosaic")
+```
+
+- I will use [https://tweedback.de/?l=en](https://tweedback.de/?l=en) for anonymous realtime feedback. Our Session-ID is **ssdsd**.
+
+---
+
+class: center, inverse, middle
+
+# Motivation
+
+---
+
+## Gender Pay Gap (I/II)
+
+Payment in fictious company:
+
+
+|                    | Female      | Male        |
+|--------------------|-------------|-------------|
+| **Non-management** | 3100 (n=80) | 3000 (n=60) |
+| **Management**     | 5850 (n=20) | 5500 (n=40) |
+
+
+.footnote[Example adopted from [Paul Hünermund](https://youtu.be/6ZwarKVgAzQ).]
+
+---
+
+## Gender Pay Gap (II/II)
+
+What do you think ist the magnitude of the gender pay gap for women in this company?
+
+<br>
+
+A. On average: $\frac{3100 \cdot 80 + 5850 \cdot 20}{80+20}-\frac{3000 \cdot 60 + 5500 \cdot 40}{60+40}=-350$
+
+B. Adjusted for job: $\frac{(3100-3000) \cdot (80+60)}{200}-\frac{(5850-5500) \cdot(20+40)}{200}=+175$
+
+---
+
+## Lifestyle Pay Gap (I/II)
+
+Payment in fictious company:
+
+
+|                    | Healthy Lifestyle | Unhealthy Lifestyle |
+|--------------------|-------------------|---------------------|
+| **Non-management** | 3100 (n=80)       | 3000 (n=60)         |
+| **Management**     | 5850 (n=20)       | 5500 (n=40)         |
+
+.footnote[Example adopted from [Paul Hünermund](https://youtu.be/6ZwarKVgAzQ).]
+
+---
+
+## Lifestyle Pay Gap (II/II)
+
+
+What do you think ist the magnitude of the healthy pay gap in this company?
+
+<br> 
+
+A: On average: $\frac{3100 \cdot 80 + 5850 \cdot 20}{80+20}-\frac{3000 \cdot 60 + 5500 \cdot 40}{60+40}=-350$
+
+B: Adjusted for job: $\frac{(3100-3000) \cdot (80+60)}{200}-\frac{(5850-5500) \cdot(20+40)}{200}=+175$
+
+---
+
+## Different Data Stories
+
+Directed Acyclic Graphs tell your assumed data story - and tell you if you should adjust for $Z$.
+
+.pull-left[
+```{r dag-mot1, echo=FALSE, out.width="70%"}
+plot(DAG_Mot1)
+```
+]
+
+.pull-right[
+```{r dag-mot2, echo=FALSE, out.width="70%"}
+plot(DAG_Mot2)
+```
+]
+
+
+---
+
+## Disclaimer
+
+.pull-left[
+**Warning**: All examples for simulation are (over-)simplified and fictitious. 
+
+They should be seen as a burlesque and .red[not] taken serious. 
+]
+
+.pull-right[
+.center[<iframe src="https://giphy.com/embed/1VPWdCFvstTos" width="360" height="360" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>] 
+.footnote[[via GIPHY](https://giphy.com/gifs/jon-stewart-daily-show-1VPWdCFvstTos)]
+]
+
+---
+
+class: center, inverse, middle
+
+# A First Simulation
+
+---
+
+## Learning, Knowing and Understanding 
+
+First simulated example: 
+
+- .green[learning] $\color{green}{X}$ effects .violet[knowing] $\color{violet}{Z}$.
+
+- .violet[knowing] causes .blue[understanding] $\color{blue}{Y}$ - plus some exogenous factors ( $U$, error term).
+
+<br>
+
+\begin{eqnarray*}
+\color{green}{X} &=& U_{\color{green}{X}}, \quad U_{\color{green}{X}} \sim \mathcal{N}(0,\,1), \\
+\color{violet}{Z} &=& 5 \cdot \color{green}{X} +  U_{\color{violet}{Z}}, \quad U_{\color{violet}{Z}} \sim \mathcal{N}(0,\,1), \\
+\color{blue}{Y} &=& 3 \cdot \color{violet}{Z} + U_{\color{blue}{Y}}, \quad U_{\color{blue}{Y}} \sim \mathcal{N}(0,\,1).
+\end{eqnarray*}
+
+---
+
+## Math - or `R`?
+
+$\color{green}{X}$: .green[learning], $\color{violet}{Z}$: .violet[knowing], $\color{blue}{Y}$: .blue[understanding]. *Structual Causal Model*:
+
+\begin{eqnarray*}
+\color{green}{X} &=& U_{\color{green}{X}}, \quad U_{\color{green}{X}} \sim \mathcal{N}(0,\,1), \\
+\color{violet}{Z} &=& 5 \cdot \color{green}{X} +  U_{\color{violet}{Z}}, \quad U_{\color{violet}{Z}} \sim \mathcal{N}(0,\,1), \\
+\color{blue}{Y} &=& 3 \cdot \color{violet}{Z} + U_{\color{blue}{Y}}, \quad U_{\color{blue}{Y}} \sim \mathcal{N}(0,\,1).
+\end{eqnarray*}
+
+In `R`:
+
+```{r Chain}
+set.seed(1896) # Reproducibility
+n <- 1000 # Sample Size
+learning <- rnorm(n)
+knowing <- 5 * learning + rnorm(n)
+understanding <- 3 * knowing + rnorm(n)
+```
+
+---
+
+## Data Handling
+
+Putting it all together:
+
+```{r Chain-DF}
+Sim_chain <- data.frame(learning, knowing, understanding)
+```
+
+Start `mosaic`:
+
+```{r mosaic, message=FALSE}
+library(mosaic)
+```
+
+---
+
+## Modeling of Understanding
+
+We are interested in the *total causal effect* of .green[learning] on .blue[understanding].
+.pull-left[
+*Without* adjusting for .violet[knowing]:
+
+```{r}
+res1_S1 <- lm(understanding ~ 
+                  learning,  #<<
+                data = Sim_chain)
+coef(res1_S1)
+```
+]
+
+.pull-right[
+
+*With* adjusting for .violet[knowing]:
+
+```{r}
+res2_S1 <- lm(understanding ~ 
+                  learning + knowing,  #<<
+                data = Sim_chain)
+coef(res2_S1)
+```
+]
+
+---
+
+## With or without Knowing?
+
+Which estimator is better for estimating the total causal effect of .green[learning], i.e. the estimated average effect on .blue[understanding] by an unit increase of .green[learning]?
+
+<br>
+
+A: *Without* adjusting for .violet[knowing]: $\hat{\beta}_{\color{green}{learning}} = `r round(coef(res1_S1)[2],2)`$ (`res1_S1`).
+
+B: *With* adjusting for .violet[knowing]: $\hat{\beta}_{\color{green}{learning}} = `r round(coef(res2_S1)[2],2)`$ (`res1_S2`).
+
+---
+
+## Arrow
+
+
+- $\color{green}{X} \rightarrow \color{blue}{Y}: \quad \color{blue}{Y}=f(\color{green}{X}, U_{\color{blue}{Y}})$ with some function $f(\cdot)$ and some exogenous $U$. 
+
+- The value of $\color{blue}{Y}$ depends on $\color{green}{X}$ - but the value of $\color{green}{X}$ **not** on $\color{blue}{Y}$. 
+
+- Causally there is no inverse function $f^{-1}(\cdot)$. My .blue[weight] growths with my .green[height] but unfortunately my .green[height] not with my .blue[weight] `r fontawesome("sad-tear", style = "solid")`
+
+---
+
+## Chain
+
+- $\color{green}{X} \rightarrow \color{violet}{Z} \rightarrow \color{blue}{Y}$ is called a **Chain**.
+
+- $\color{violet}{Z}$ is a **Mediator** between the **Exposure** $\color{green}{X}$ and the **Outcome** $\color{blue}{Y}$.
+
+- Adjusting (controlling, conditioning, ...) for a mediator will **close** this causal path between exposure and outcome.
+
+---
+
+## Lesson Learned First Simulation (?)
+
+Adjusting for a Mediator?
+
+--
+
+.center[<iframe src="https://giphy.com/embed/gKHdgV9yXV6LWHWnGD" width="280" height="280" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>] 
+.footnote[[via GIPHY](https://giphy.com/gifs/CBSAllAccess-taylor-tell-me-a-story-tmas210-gKHdgV9yXV6LWHWnGD)]
+
+BTW: p-values, $R^2$, AIC etc. will not necessarily tell you that.
+
+---
+
+class: center, inverse, middle
+
+# A Second Simulation
+
+---
+
+## Simpson's Paradox
+
+.center[<iframe width="560" height="315" src="https://www.youtube.com/embed/nGqzoqXZch0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>]
+
+.footnote[[Rafael Moral: Summary Song #8 - Simpson's Paradox](https://youtu.be/nGqzoqXZch0)]
+
+---
+
+## Test Score
+
+.pull-left[
+- .violet[Intelligence] $\color{violet}{Z}$ reduces .green[learning time] $\color{green}{X}$. 
+- .violet[Intelligence] $\color{violet}{Z}$  and .green[learning time] $\color{green}{X}$ increase .blue[test score] $\color{blue}{Y}$.
+]
+
+.pull-right[
+```{r DAG-Fork, echo=FALSE}
+plot(DAG_Fork)
+```
+]
+
+---
+
+## Simulation - Practice
+
+\begin{eqnarray*}
+\color{violet}{Z} &=& U_{\color{violet}{Z}}, \quad U_{\color{violet}{Z}} \sim \mathcal{N}(100,\,15), \\
+\color{green}{X} &=& 200 - \color{violet}{Z} +  U_{\color{green}{X}}, \quad U_{\color{green}{X}} \sim \mathcal{N}(0,\,1), \\
+\color{blue}{Y} &=& 0.5 \cdot \color{violet}{Z} + 0.1 \cdot \color{green}{X} + U_{\color{blue}{Y}}, \quad U_{\color{blue}{Y}} \sim \mathcal{N}(0,\,1).
+\end{eqnarray*}
+
+
+```{r Fork, eval=FALSE}
+set.seed(1896) # Reproducibility
+n <- 1000 # Sample Size
+intelligence <- rnorm(n, mean = 100, sd = 15)
+learning.time <- 200 - intelligence + rnorm(n)
+test.score <- #<<
+```
+
+---
+
+## Simulation - Solution
+
+\begin{eqnarray*}
+\color{violet}{Z} &=& U_{\color{violet}{Z}}, \quad U_{\color{violet}{Z}} \sim \mathcal{N}(100,\,15), \\
+\color{green}{X} &=& 200 - \color{violet}{Z} +  U_{\color{green}{X}}, \quad U_{\color{green}{X}} \sim \mathcal{N}(0,\,1), \\
+\color{blue}{Y} &=& 0.5 \cdot \color{violet}{Z} + 0.1 \cdot \color{green}{X} + U_{\color{blue}{Y}}, \quad U_{\color{blue}{Y}} \sim \mathcal{N}(0,\,1).
+\end{eqnarray*}
+
+
+```{r Fork-sol}
+set.seed(1896) # Reproducibility
+n <- 1000 # Sample Size
+intelligence <- rnorm(n, mean = 100, sd = 15)
+learning.time <- 200 - intelligence + rnorm(n)
+test.score <-  0.5 * intelligence + 0.1 * learning.time + rnorm(n) #<<
+# Putting it all together
+Sim_fork <- data.frame(learning.time, intelligence, test.score)
+```
+
+---
+
+## Modeling of Test Score
+
+We are interested in the *total causal effect* of .green[learning time] on .blue[test score].
+.pull-left[
+*Without* adjusting for .violet[Intelligence]:
+
+```{r}
+res1_S2 <- lm(test.score ~ 
+                  learning.time,  #<<
+                data = Sim_fork)
+coef(res1_S2)
+```
+]
+
+.pull-right[
+
+*With* adjusting for .violet[Intelligence]:
+
+```{r}
+res2_S2 <- lm(test.score ~ 
+                  learning.time + intelligence,  #<<
+                data = Sim_fork)
+coef(res2_S2)
+```
+]
+
+---
+
+## With or without Intelligence?
+
+Which estimator is better for estimating the total causal effect of .green[learning time], i.e. the estimated average effect on .blue[test score] by an unit increase of .green[learning time]?
+
+<br>
+
+A: *Without* adjusting for .violet[Intelligence]: $\hat{\beta}_{\color{green}{learning.time}} = `r round(coef(res1_S2)[2],2)`$ (`res1_S2`).
+
+B: *With* adjusting for .violet[Intelligence]: $\hat{\beta}_{\color{green}{learning.time}} = `r round(coef(res2_S2)[2],2)`$ (`res2_S2`).
+
+---
+
+## Fork
+
+- $\color{green}{X} \leftarrow \color{violet}{Z} \rightarrow \color{blue}{Y}$ is called a **Fork**.
+
+- $\color{violet}{Z}$ is a common cause, a **Confounder** for the **Exposure** $\color{green}{X}$ and the **Outcome** $\color{blue}{Y}$.
+
+- Adjusting (controlling, conditioning, ...) for a confounder will **close** this non-causal confounding path between exposure and outcome.
+
+---
+
+## Randomized Controlled Trial
+
+.pull-left[
+Within a randomized controlled trial observation $i$ is randomly assigend to $\color{green}{x}_i$. The connections to the *parents* of $\color{green}{X}$ is cut.
+]
+
+.pull-right[
+```{r DAG-Experiment, echo=FALSE}
+plot(DAG_Experiment)
+```
+
+]
+---
+
+## Lesson Learned Second Simulation (?)
+
+Adjusting for a Confounder?
+
+--
+
+.center[<iframe src="https://giphy.com/embed/xT0xem7ZlZ2DOYqpG0" width="280" height="280" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>] 
+.footnote[[via GIPHY](https://giphy.com/gifs/latenightseth-seth-meyers-lnsm-xT0xem7ZlZ2DOYqpG0)]
+
+BTW: p-values, $R^2$, AIC etc. will not necessarily tell you that.
+
+---
+
+class: center, inverse, middle
+
+# A Third Simulation
+
+---
+
+## Dating
+
+.pull-left[
+- You .violet[date] $\color{violet}{Z}$ someone because he/she is good .green[looking] $\color{green}{X}$. 
+- You .violet[date] $\color{violet}{Z}$ someone because he/she is .blue[kind] $\color{blue}{Y}$. 
+]
+
+.pull-right[
+```{r DAG-Collider, echo=FALSE}
+plot(DAG_Collider)
+```
+]
+
+---
+
+## Causal Model
+
+\begin{eqnarray*}
+\color{green}{X} &=& U_{\color{green}{X}}, \quad U_{\color{green}{X}} \sim \mathcal{N}(0,\,1), \\
+\color{blue}{Y} &=& U_{\color{blue}{Y}}, \quad U_{}\color{blue}{Y} \sim \mathcal{N}(0,\,1), \\
+\tilde{\color{violet}{Z}} &=&\begin{cases} 1 &  \text{if } \{ \color{green}{X} > 1 \,\vee\, \color{blue}{Y} > 1\} \\ 0 &  \text{else} \end{cases}, \\
+\color{violet}{Z} &=& (1-U_{\color{violet}{Z}}) \cdot \tilde{\color{violet}{Z}} + U_{\color{violet}{Z}} \cdot (1- \tilde{\color{violet}{Z}}), \quad U_{\color{violet}{Z}} \sim \mathcal{B}(0.05),
+\end{eqnarray*}
+
+---
+
+## Simulation (I/II)
+
+```{r Collider}
+set.seed(1896) # Reproducibility
+n <- 1000 # Sample Size
+
+kind <- rnorm(n)
+look <- rnorm(n)
+dating <- ((kind > 1) | (look > 1)) 
+luck <- rbinom(n, size = 1, prob = 0.05)
+dating <- (1 - luck) * dating + luck * (1 - dating)
+```
+
+---
+
+## Simulation (II/II)
+
+.pull-left[
+Putting it all together and preprocess `dating`:
+
+```{r}
+Sim_collider <- data.frame(look, 
+                           dating, 
+                           kind) %>%
+  mutate(dating = ifelse(dating, 
+                         "date", 
+                         "no date"))
+```
+]
+
+.pull-right[
+```{r, echo=FALSE}
+include_graphics("https://github.com/allisonhorst/stats-illustrations/raw/master/rstats-artwork/dplyr_mutate.png")
+```
+.footnote[Artwork by [@allisonhorst](https://github.com/allisonhorst/stats-illustrations).]
+]
+---
+
+## Modeling of Test Score
+
+We are interested in the *total causal effect* of .green[looking] on .blue[kindness].
+.pull-left[
+*Without* adjusting for .violet[dating]:
+
+```{r}
+res1_S3 <- lm(kind ~ 
+                  look,  #<<
+                data = Sim_collider)
+coef(res1_S3)
+```
+]
+
+.pull-right[
+
+*With* adjusting for .violet[dating]:
+
+```{r}
+res2_S3 <- lm(kind ~ 
+                  look + dating,  #<<
+                data = Sim_collider)
+coef(res2_S3)
+```
+]
+
+---
+
+## With or without Dating?
+
+Which estimator is better for estimating the total causal effect of .green[look], i.e. the estimated average effect on .blue[kind] by an unit increase of .green[look]?
+
+<br>
+
+A: *Without* adjusting for .violet[date]: $\hat{\beta}_{\color{green}{look}} = `r round(coef(res1_S3)[2],2)`$ (`res1_S3`).
+
+B: *With* adjusting for .violet[Intelligence]: $\hat{\beta}_{\color{green}{look}} = `r round(coef(res2_S3)[2],2)`$ (`res2_S3`).
+
+
+---
+
+## What is going on?
+
+.pull-left[
+
+Scatterplot of the data:
+
+```{r plot-collider, eval=FALSE}
+gf_point(kind ~ look, 
+         color = ~ dating,
+         data = Sim_collider) %>% 
+  gf_lm() +
+  ggthemes::scale_color_colorblind()
+```
+]
+
+.pull-right[
+```{r plot-collider-out, echo = FALSE, ref.label="plot-collider"}
+```
+]
+
+---
+
+## Collider
+
+- $\color{green}{X} \rightarrow \color{violet}{Z} \leftarrow \color{blue}{Y}$ is called a **Collider**.
+
+- $\color{violet}{Z}$ is an effect of the the **Exposure** $\color{green}{X}$ and the **Outcome** $\color{blue}{Y}$.
+
+- Adjusting (controlling, conditioning, ...) for a collider will **open** a biasing path between exposure and outcome.
+
+---
+
+## Selection/ Collider Bias - Practice
+
+.pull-left[
+Calculate the correlation coefficient between .green[looking] and .blue[kindness] for those you dated.
+
+Hints:
+
+- `filter()`
+- `cor()`
+]
+
+.pull-right[
+```{r, echo=FALSE}
+include_graphics("https://github.com/allisonhorst/stats-illustrations/raw/master/rstats-artwork/dplyr_filter.jpg")
+```
+
+.footnote[Artwork by [@allisonhorst](https://github.com/allisonhorst/stats-illustrations).]
+]
+---
+
+## Selection/ Collider Bias - Solution
+
+```{r selection-solution}
+Sim_date <- Sim_collider %>%
+  filter(dating == "date")
+
+cor(kind ~ look, data = Sim_date)
+```
+
+There were reasons why you dated someone - if it wasn't the good looking it must have been the kindness - or luck `r icon_style(fontawesome("heart", style = "solid"), fill = "red")`
+
+---
+
+class: center, inverse
+background-image: url("img/DAG-Wald.jpg")
+
+---
+
+
+## Lesson Learned Third Simulation (?)
+
+Adjusting for a Collider?
+
+--
+
+.center[<iframe src="https://giphy.com/embed/gKHdgV9yXV6LWHWnGD" width="280" height="280" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>] 
+.footnote[[via GIPHY](https://giphy.com/gifs/CBSAllAccess-taylor-tell-me-a-story-tmas210-gKHdgV9yXV6LWHWnGD)]
+
+BTW: **[DAGitty](http://dagitty.net/)** would have told you so `r fontawesome("grin", style = "solid")`
+
+---
+
+class: center, inverse, middle
+
+# Outro
+
+
+---
+
+## If you just woken up
+
+.center[Simulated Data to Introduce Causal Inference]
+
+`r fontawesome("hand-point-right", style = "solid")` Causality and directed acyclic graphs together with data simulations may help to develop a framework to think about the data generating process.
+
+---
+
+## Want to learn more?
+
+
+Some starters:
+
+
+- [Rohrer, J.M. (2018). Thinking Clearly About Correlations and Causation: Graphical Causal Models for Observational Data. Advances in Methods and Practices in Psychological Science, 1(1), 27–42.](https://doi.org/10.1177/2515245917745629)
+    
+- [Elwert, F. (2013). Graphical causal models. In: Handbook of causal analysis for social research (S. 245-273). Springer, Dordrecht.](https://www.researchgate.net/publication/278717528_Graphical_Causal_Models)
+
+
+---
+
+## It's not a bug, it's a feature
+
+"But the correctness of the (causal) conclusions is based on the correctness of the graph."
+
+--
+
+.center[<iframe src="https://giphy.com/embed/10Jpr9KSaXLchW" width="240" height="188" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>]
+
+.footnote[[via GIPHY](https://giphy.com/gifs/people-hd-gifsremastered-10Jpr9KSaXLchW), inspiration [@rlmcelreath](https://twitter.com/rlmcelreath/status/1318113949074771968)]
+
+
+Is (unconscious?) wishful thinking really better? 
+
+
+---
+
+# Own work and contact
+
+- [Lübke, K., Gehrke, M., Horst, J. & Szepannek, G. (2020). Why We Should Teach Causal Inference: Examples in Linear Regression with Simulated Data, Journal of Statistics Education.](https://doi.org/10.1080/10691898.2020.1752859) 
+
+- learnR Tutorial with real data: [https://fomshinyapps.shinyapps.io/CausalInference/](https://fomshinyapps.shinyapps.io/CausalInference/)
+
+<br>
+
+- `r fontawesome("envelope", style = "solid")`:  [karsten.luebke@fom.de](<mailto:karsten.luebke@fom.de>)
+- `r fontawesome("twitter", style = "brands")`:  [@luebby42](https://twitter.com/luebby42)
+

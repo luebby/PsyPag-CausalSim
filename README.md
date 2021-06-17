@@ -1,6 +1,6 @@
 # PsyPag & MSCP-Section Simulation Summer School
 
-Materials for [PsyPag & MSCP-Section Simulation Summer School 2021](Simulated Data to Introduce Causal Inference](https://simsummerschool.github.io/) workshop **Simulated Data to Introduce Causal Inference**.
+Materials for [PsyPag & MSCP-Section Simulation Summer School 2021](https://simsummerschool.github.io/) workshop **Simulated Data to Introduce Causal Inference**.
 
 Based on the paper [Lübke, K., Gehrke, M., Horst, J. & Szepannek, G. (2020). Why We Should Teach Causal Inference: Examples in Linear Regression with Simulated Data, Journal of Statistics Education.](https://doi.org/10.1080/10691898.2020.1752859)
 
