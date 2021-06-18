@@ -69,7 +69,7 @@ DAG_Mot1 <- dagify(Z ~ X,
                    Y ~ Z, coords = co) %>% 
   ggdag(node_size = 15, text_size = 8, text = TRUE, text_col = "lightgray") + theme_dag_blank() +
   geom_dag_edges(arrow_directed = grid::arrow(length = grid::unit(12, "pt"), type = "closed"))  + 
-  geom_text(label = "X - Gender\nZ - Management\nY - Pay", 
+  geom_text(label = "X - Gender\nZ - Management\nY - Salary", 
             hjust = 1, vjust = 1,
             x = 1, y = 1, size = 7, color = "darkgrey") +
   labs(title = "Model 1")
@@ -79,7 +79,7 @@ DAG_Mot2 <- dagify(X ~ Z,
                    Y ~ Z, coords = co) %>% 
   ggdag(node_size = 15, text_size = 8, text = TRUE, text_col = "lightgray") + theme_dag_blank() +
   geom_dag_edges(arrow_directed = grid::arrow(length = grid::unit(12, "pt"), type = "closed"))  + 
-  geom_text(label = "X - Lifestyle\nZ - Management\nY - Pay", 
+  geom_text(label = "X - Lifestyle\nZ - Management\nY - Salary", 
             hjust = 1, vjust = 1,
             x = 1, y = 1, size = 7, color = "darkgrey") +
   labs(title = "Model 2")
@@ -130,7 +130,6 @@ DAG_Collider <- dagify(Z ~ Y,
             x = 1, y = 1, size = 7, color = "darkgrey")
 ```
 
-
 class: center
 background-image: url("img/RedBlue-Causal.jpg")
 
@@ -156,7 +155,6 @@ Or as [Thomas Lumley](https://notstatschat.rbind.io/2021/05/02/generalisability-
 
 ---
 
-
 ## What you should know before we start
 
 .pull-left[
@@ -165,7 +163,7 @@ Or as [Thomas Lumley](https://notstatschat.rbind.io/2021/05/02/generalisability-
 
 `r fontawesome("sad-tear", style = "solid")` or `r fontawesome("grin", style = "solid")`? This is an intro workshop.
 
-`r fontawesome$brands$"r-project"` You can  copy-paste the code from the slides (link in chat) in a R script. `File -> New File -> R Script`
+`r fontawesome$brands$"r-project"` You can  copy-paste the code from the slides (link in chat) into a R script. `File -> New File -> R Script`
 
 ]
 
@@ -188,9 +186,10 @@ Or as [Thomas Lumley](https://notstatschat.rbind.io/2021/05/02/generalisability-
 install.packages("mosaic")
 ```
 
-- I will use [https://tweedback.de/?l=en](https://tweedback.de/?l=en) for anonymous realtime feedback. Our Session-ID is **ssdsd**.
+- I will use [https://tweedback.de/?l=en](https://tweedback.de/?l=en) for anonymous realtime feedback. Our Session-ID is **xxxx**.
 
 ---
+
 
 class: center, inverse, middle
 
@@ -268,13 +267,12 @@ plot(DAG_Mot2)
 ```
 ]
 
-
 ---
 
 ## Disclaimer
 
 .pull-left[
-**Warning**: All examples for simulation are (over-)simplified and fictitious. 
+**Warning**: All examples for the simulations are (over-)simplified and fictitious. 
 
 They should be seen as a burlesque and .red[not] taken serious. 
 ]
@@ -285,6 +283,7 @@ They should be seen as a burlesque and .red[not] taken serious.
 ]
 
 ---
+
 
 class: center, inverse, middle
 
@@ -376,6 +375,18 @@ coef(res2_S1)
 
 ---
 
+## The Ladder of Causation
+
+[Judea Pearl (2019)](https://doi.org/10.1145/3241036) establishes a three-level hierarchy:
+
+- **Association**: $P(y|x)$: Seeing, *what is?*, i.e., the probability of $Y=y$ given that we observe $X=x$.
+
+- **Intervention**: $P(y|do(x))$: Manipulation, *what if?*, i.e., the probability of $Y=y$ given that we intervene and set the value of $X$ to $x$.
+
+- **Counterfactuals**: $P(y_x|x',y')$: Imagining, *what if I had acted differently?*, i.e., the probability of $Y=y$ if $X$ had been $x$ given that we actually observed $x',y'$.
+
+---
+
 ## With or without Knowing?
 
 Which estimator is better for estimating the total causal effect of .green[learning], i.e. the estimated average effect on .blue[understanding] by an unit increase of .green[learning]?
@@ -390,12 +401,13 @@ B: *With* adjusting for .violet[knowing]: $\hat{\beta}_{\color{green}{learning}}
 
 ## Arrow
 
-
 - $\color{green}{X} \rightarrow \color{blue}{Y}: \quad \color{blue}{Y}=f(\color{green}{X}, U_{\color{blue}{Y}})$ with some function $f(\cdot)$ and some exogenous $U$. 
 
 - The value of $\color{blue}{Y}$ depends on $\color{green}{X}$ - but the value of $\color{green}{X}$ .red[not] on $\color{blue}{Y}$. 
 
 - Causally there is no inverse function $f^{-1}(\cdot)$. My .blue[weight] growths with my .green[height] but unfortunately my .green[height] not with my .blue[weight] `r fontawesome("sad-tear", style = "solid")`
+
+- A missing arrow means .red[no] (direct) causal relationship. 
 
 ---
 
@@ -421,6 +433,7 @@ Adjusting for a Mediator?
 BTW: p-values, $R^2$, AIC etc. will not necessarily tell you that.
 
 ---
+
 
 class: center, inverse, middle
 
@@ -551,8 +564,8 @@ Within a randomized controlled trial observation $i$ is randomly assigned to $\c
 ```{r DAG-Experiment, echo=FALSE}
 plot(DAG_Experiment)
 ```
-
 ]
+
 ---
 
 ## Lesson Learned Second Simulation (?)
@@ -567,6 +580,7 @@ Adjusting for a Confounder?
 BTW: p-values, $R^2$, AIC etc. will not necessarily tell you that.
 
 ---
+
 
 class: center, inverse, middle
 
@@ -593,7 +607,7 @@ plot(DAG_Collider)
 
 \begin{eqnarray*}
 \color{green}{X} &=& U_{\color{green}{X}}, \quad U_{\color{green}{X}} \sim \mathcal{N}(0,\,1), \\
-\color{blue}{Y} &=& U_{\color{blue}{Y}}, \quad U_{}\color{blue}{Y} \sim \mathcal{N}(0,\,1), \\
+\color{blue}{Y} &=& U_{\color{blue}{Y}}, \quad U_{\color{blue}{Y}} \sim \mathcal{N}(0,\,1), \\
 \tilde{\color{violet}{Z}} &=&\begin{cases} 1 &  \text{if } \{ \color{green}{X} > 1 \,\vee\, \color{blue}{Y} > 1\} \\ 0 &  \text{else} \end{cases}, \\
 \color{violet}{Z} &=& (1-U_{\color{violet}{Z}}) \cdot \tilde{\color{violet}{Z}} + U_{\color{violet}{Z}} \cdot (1- \tilde{\color{violet}{Z}}), \quad U_{\color{violet}{Z}} \sim \mathcal{B}(0.05),
 \end{eqnarray*}
@@ -612,6 +626,8 @@ dating <- ((kind > 1) | (look > 1))                 # ~Z
 luck <- rbinom(n, size = 1, prob = 0.05)            # U_Z
 dating <- (1 - luck) * dating + luck * (1 - dating) # Z
 ```
+
+.footnote[`|` is the (logical) *or*.]
 
 ---
 
@@ -636,6 +652,7 @@ include_graphics("https://github.com/allisonhorst/stats-illustrations/raw/master
 ```
 .footnote[Artwork by [@allisonhorst](https://github.com/allisonhorst/stats-illustrations).]
 ]
+
 ---
 
 ## Modeling of Test Score
@@ -653,7 +670,6 @@ coef(res1_S3)
 ]
 
 .pull-right[
-
 *With* adjusting for .violet[dating]:
 
 ```{r}
@@ -675,7 +691,6 @@ Which estimator is better for estimating the total causal effect of .green[look]
 A: *Without* adjusting for .violet[date]: $\hat{\beta}_{\color{green}{look}} = `r round(coef(res1_S3)[2],2)`$ (`res1_S3`).
 
 B: *With* adjusting for .violet[Intelligence]: $\hat{\beta}_{\color{green}{look}} = `r round(coef(res2_S3)[2],2)`$ (`res2_S3`).
-
 
 ---
 
@@ -729,6 +744,7 @@ include_graphics("https://github.com/allisonhorst/stats-illustrations/raw/master
 
 .footnote[Artwork by [@allisonhorst](https://github.com/allisonhorst/stats-illustrations).]
 ]
+
 ---
 
 ## Selection/ Collider Bias - Solution
@@ -751,13 +767,11 @@ background-image: url("img/DAG-Wald.jpg")
 
 ---
 
-
 ## Lesson Learned Third Simulation (?)
 
 Adjusting for a Collider?
 
 --
-
 
 .center[<iframe src="https://giphy.com/embed/d95sQmhjga3hJPAzZ4" width="280" height="160" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>] 
 .footnote[[via GIPHY](https://giphy.com/gifs/snl-saturday-night-live-season-45-d95sQmhjga3hJPAzZ4)]
@@ -766,10 +780,10 @@ BTW: **[DAGitty](http://dagitty.net/)** would have told you so `r fontawesome("g
 
 ---
 
+
 class: center, inverse, middle
 
 # Outro
-
 
 ---
 
@@ -783,19 +797,29 @@ class: center, inverse, middle
 
 `r fontawesome("hand-point-right", style = "solid")` Causality and directed acyclic graphs together with data simulations may help to develop a framework to think about the data generating process.
 
-
 ---
 
 ## Want to learn more?
 
-
 Some starters:
-
 
 - [Rohrer, J.M. (2018). Thinking Clearly About Correlations and Causation: Graphical Causal Models for Observational Data. Advances in Methods and Practices in Psychological Science, 1(1), 27–42.](https://doi.org/10.1177/2515245917745629)
     
 - [Elwert, F. (2013). Graphical causal models. In: Handbook of causal analysis for social research (S. 245-273). Springer, Dordrecht.](https://www.researchgate.net/publication/278717528_Graphical_Causal_Models)
 
+---
+
+## Or even more?
+
+Some literature on the relationship to Structural Equation Models:
+
+- [Pearl, J. (1998). Graphs, Causality, and Structural Equation Models. Sociological Methods & Research, 27(2), 226-284.](http://ftp.cs.ucla.edu/pub/stat_ser/r253-reprint.pdf)
+
+- [Rohrer, J. M., Hünermund, P., Arslan, R. C., & Elson, M.  (2021). That’s a Lot to PROCESS! Pitfalls of Popular Path Models. PsyArXiv.](https://doi.org/10.31234/osf.io/paeb7)
+
+Crash course for variable selection:
+
+- [Cinelli, C., Forney, A., & Pearl, J. (2020). A Crash Course in Good and Bad Controls. Available at SSRN 3689437.](https://dx.doi.org/10.2139/ssrn.3689437)
 
 ---
 
@@ -809,22 +833,18 @@ Some starters:
 
 .footnote[[via GIPHY](https://giphy.com/gifs/people-hd-gifsremastered-10Jpr9KSaXLchW), inspiration [@rlmcelreath](https://twitter.com/rlmcelreath/status/1318113949074771968)]
 
-
 Is (unconscious?) wishful thinking really better? 
-
 
 ---
 
-# Own work and contact
+# The End
 
 - Source `r fontawesome$brands$github`:  [https://github.com/luebby/PsyPag-CausalSim](https://github.com/luebby/PsyPag-CausalSim)
-- Paper: [Lübke, K., Gehrke, M., Horst, J. & Szepannek, G. (2020). Why We Should Teach Causal Inference: Examples in Linear Regression with Simulated Data, Journal of Statistics Education.](https://doi.org/10.1080/10691898.2020.1752859) 
+- Paper: [Lübke, K., Gehrke, M., Horst, J. & Szepannek, G. (2020). Why We Should Teach Causal Inference: Examples in Linear Regression with Simulated Data, Journal of Statistics Education, 28(2), 133-139.](https://doi.org/10.1080/10691898.2020.1752859) 
 
 - learnR Tutorial: [https://fomshinyapps.shinyapps.io/CausalInference/](https://fomshinyapps.shinyapps.io/CausalInference/)
 
 <br>
 
-
 - `r fontawesome("envelope", style = "solid")`:  [karsten.luebke@fom.de](<mailto:karsten.luebke@fom.de>)
 - `r fontawesome("twitter", style = "brands")`:  [@luebby42](https://twitter.com/luebby42)
-
