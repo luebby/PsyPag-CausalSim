@@ -3,7 +3,7 @@ title: "Simulated Data to Introduce Causal Inference"
 subtitle: "PsyPag & MSCP-Section Simulation Summer School"  
 author: 
   - "Karsten Lübke"
-date: "23.06.2021"
+date: "23rd June 2021"
 output:
   xaringan::moon_reader:
     includes:
@@ -218,9 +218,9 @@ What do you think is the magnitude of the gender pay gap for women in this compa
 
 <br>
 
-A. On average: $\frac{3100 \cdot 80 + 5850 \cdot 20}{80+20}-\frac{3000 \cdot 60 + 5500 \cdot 40}{60+40}=-350$
+.olive[**A**]: On average: $\frac{3100 \cdot 80 + 5850 \cdot 20}{80+20}-\frac{3000 \cdot 60 + 5500 \cdot 40}{60+40}=-350$
 
-B. Adjusted for job: $\frac{(3100-3000) \cdot (80+60)}{200}-\frac{(5850-5500) \cdot(20+40)}{200}=+175$
+.olive[**B**]: Adjusted for job: $\frac{(3100-3000) \cdot (80+60)}{200}-\frac{(5850-5500) \cdot(20+40)}{200}=+175$
 
 ---
 
@@ -245,9 +245,9 @@ What do you think is the magnitude of the healthy pay gap in this company?
 
 <br> 
 
-A: On average: $\frac{3100 \cdot 80 + 5850 \cdot 20}{80+20}-\frac{3000 \cdot 60 + 5500 \cdot 40}{60+40}=-350$
+.olive[**A**]: On average: $\frac{3100 \cdot 80 + 5850 \cdot 20}{80+20}-\frac{3000 \cdot 60 + 5500 \cdot 40}{60+40}=-350$
 
-B: Adjusted for job: $\frac{(3100-3000) \cdot (80+60)}{200}-\frac{(5850-5500) \cdot(20+40)}{200}=+175$
+.olive[**B**]: Adjusted for job: $\frac{(3100-3000) \cdot (80+60)}{200}-\frac{(5850-5500) \cdot(20+40)}{200}=+175$
 
 ---
 
@@ -393,9 +393,9 @@ Which estimator is better for estimating the total causal effect of .green[learn
 
 <br>
 
-A: *Without* adjusting for .violet[knowing]: $\hat{\beta}_{\color{green}{learning}} = `r round(coef(res1_S1)[2],2)`$ (`res1_S1`).
+.olive[**A**]: *Without* adjusting for .violet[knowing]: $\hat{\beta}_{\color{green}{learning}} = `r round(coef(res1_S1)[2],2)`$ (`res1_S1`).
 
-B: *With* adjusting for .violet[knowing]: $\hat{\beta}_{\color{green}{learning}} = `r round(coef(res2_S1)[2],2)`$ (`res1_S2`).
+.olive[**B**]: *With* adjusting for .violet[knowing]: $\hat{\beta}_{\color{green}{learning}} = `r round(coef(res2_S1)[2],2)`$ (`res1_S2`).
 
 ---
 
@@ -530,9 +530,9 @@ Which estimator is better for estimating the total causal effect of .green[learn
 
 <br>
 
-A: *Without* adjusting for .violet[Intelligence]: $\hat{\beta}_{\color{green}{learning.time}} = `r round(coef(res1_S2)[2],2)`$ (`res1_S2`).
+.olive[**A**]: *Without* adjusting for .violet[Intelligence]: $\hat{\beta}_{\color{green}{learning.time}} = `r round(coef(res1_S2)[2],2)`$ (`res1_S2`).
 
-B: *With* adjusting for .violet[Intelligence]: $\hat{\beta}_{\color{green}{learning.time}} = `r round(coef(res2_S2)[2],2)`$ (`res2_S2`).
+.olive[**B**]: *With* adjusting for .violet[Intelligence]: $\hat{\beta}_{\color{green}{learning.time}} = `r round(coef(res2_S2)[2],2)`$ (`res2_S2`).
 
 ---
 
@@ -550,7 +550,7 @@ B: *With* adjusting for .violet[Intelligence]: $\hat{\beta}_{\color{green}{learn
 
 - $\color{violet}{Z}$ is a common cause, a **Confounder** for the **Exposure** $\color{green}{X}$ and the **Outcome** $\color{blue}{Y}$.
 
-- Adjusting (controlling, conditioning, ...) for a confounder will **close** this non-causal confounding path between exposure and outcome.
+- Adjusting (controlling, conditioning, ...) for a confounder will **close** this non-causal, confounding path between exposure and outcome.
 
 ---
 
@@ -688,9 +688,9 @@ Which estimator is better for estimating the total causal effect of .green[look]
 
 <br>
 
-A: *Without* adjusting for .violet[date]: $\hat{\beta}_{\color{green}{look}} = `r round(coef(res1_S3)[2],2)`$ (`res1_S3`).
+.olive[**A**]: *Without* adjusting for .violet[date]: $\hat{\beta}_{\color{green}{look}} = `r round(coef(res1_S3)[2],2)`$ (`res1_S3`).
 
-B: *With* adjusting for .violet[Intelligence]: $\hat{\beta}_{\color{green}{look}} = `r round(coef(res2_S3)[2],2)`$ (`res2_S3`).
+.olive[**B**]: *With* adjusting for .violet[Intelligence]: $\hat{\beta}_{\color{green}{look}} = `r round(coef(res2_S3)[2],2)`$ (`res2_S3`).
 
 ---
 
@@ -720,7 +720,7 @@ gf_point(kind ~ look,
 
 - $\color{green}{X} \rightarrow \color{violet}{Z} \leftarrow \color{blue}{Y}$ is called a **Collider**.
 
-- $\color{violet}{Z}$ is an effect of the the **Exposure** $\color{green}{X}$ and the **Outcome** $\color{blue}{Y}$.
+- $\color{violet}{Z}$ is an effect of both, the **Exposure** $\color{green}{X}$ and the **Outcome** $\color{blue}{Y}$.
 
 - Adjusting (controlling, conditioning, ...) for a collider will **open** a biasing path between exposure and outcome.
 
@@ -756,7 +756,7 @@ Sim_date <- Sim_collider %>%
 cor(kind ~ look, data = Sim_date)
 ```
 
-So in your sample $r=`r round(cor(kind ~ look, data = Sim_date) ,2)`$ although by construction $\rho = 0$. 
+So in your sample $r=`r round(cor(kind ~ look, data = Sim_date) ,2)`$, although by construction $\rho = 0$. 
 
 There were reasons why you dated someone - if it wasn't the good looking it must have been the kindness - or luck `r icon_style(fontawesome("heart", style = "solid"), fill = "red")`
 
@@ -783,6 +783,81 @@ BTW: **[DAGitty](http://dagitty.net/)** would have told you so `r fontawesome("g
 
 class: center, inverse, middle
 
+# Exercise: Simulation of Gender Pay Gap
+
+---
+
+## Exercise: DAG and Simulation
+
+Simplified model by `Gender`, `Ability`, `Management` and `Salary`.
+
+- Draw a DAG, e.g. with [DAGitty](http://dagitty.net/).
+
+--
+
+- Simulate $n=10000$ people with:
+    - (binary) Gender, with probability for being a women $0.5$.
+    - Ability: Normal distribution with $\mu=100$ and $\sigma=15$.
+    - Women need an Ability above $130$ to get a job in (top) Management, men need an Ability above $115$.
+    - Salary: $10\times$ Ability.
+    - Men earn $5\,\%$ more.
+    - If in a (top) Management position the Salary increases by $50\,\%$.
+
+---
+
+## Data Simulation
+
+```{r GPG}
+set.seed(1896)
+n <- 10000
+GPG <- tibble(Gender = sample(c("female", "male"), n, replace = TRUE),
+              Ability = rnorm(n, 100, 15)) %>%
+  mutate(Management = case_when(Gender == "female" & Ability > 130 ~ TRUE,
+                                Gender == "male" & Ability > 115 ~ TRUE,
+                                TRUE ~ FALSE)) %>%
+  mutate(Salary = 10 * Ability) %>%
+  mutate(Salary = case_when(Gender == "male" ~ 1.05 * Salary,
+                            TRUE ~ Salary)) %>%
+  mutate(Salary = case_when(Management == TRUE ~ 1.5 * Salary,
+                            TRUE ~ Salary))
+```
+
+*Note*: For simplicity no exogenous $U$ for `Management` and `Salary`.
+
+---
+
+## Exercise: Gender Pay Gap - Overall
+
+Calculate the mean salary per gender.
+
+--
+
+```{r GPG-Overall}
+GPG %>%
+  group_by(Gender) %>%
+  summarise(mean_salary = mean(Salary))
+```
+
+---
+
+## Exercise: Gender Pay Gap - In Management
+
+Calculate the mean salary per gender for those in a management position.
+
+--
+
+```{r GPG-Management}
+GPG %>%
+  filter(Management == TRUE) %>%
+  group_by(Gender) %>%
+  summarise(mean_salary = mean(Salary))
+```
+
+---
+
+
+class: center, inverse, middle
+
 # Outro
 
 ---
@@ -793,9 +868,9 @@ class: center, inverse, middle
 
 .center[Simulated Data to Introduce Causal Inference]
 
-<br>
+`r fontawesome("hand-point-right", style = "solid")` Causality and directed acyclic graphs together with data simulations may provide a framework to think about the data generating process and the consequences thereof for choosing an estimator for your estimand (and to understand what is going on in Simpson’s or Berkson’s paradox).
 
-`r fontawesome("hand-point-right", style = "solid")` Causality and directed acyclic graphs together with data simulations may help to develop a framework to think about the data generating process.
+
 
 ---
 
