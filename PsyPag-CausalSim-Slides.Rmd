@@ -84,23 +84,17 @@ DAG_Mot2 <- dagify(X ~ Z,
             x = 1, y = 1, size = 7, color = "darkgrey") +
   labs(title = "Model 2")
 
-# Chain
-co <- data.frame(x=c(0,1,2), y=c(0,0,0), name=c("X", "Z", "Y")) 
-DAG_Chain <- dagify(C ~ X, 
-                    Y ~ C, coords = co) %>%
-  ggdag(node_size = 20, text_size = 8, text = TRUE, text_col = "lightgray") + theme_dag_blank() +
-  geom_dag_edges(arrow_directed = grid::arrow(length = grid::unit(15, "pt"), type = "closed"))  + 
-  geom_text(label = "X - Learning\nZ - Knowing\nY - Understanding",
-            hjust = 0, vjust = 1,
-            x = 0, y = -0.025, size = 7, color = "darkgrey")
 
 # Fork
-co <- data.frame(x=c(0,0,1), y=c(1,0,0), name=c("X", "Z", "Y")) 
+co <- data.frame(x=c(0,0,1), y=c(0,1,0), name=c("X", "Z", "Y")) 
 
 DAG_Fork <- dagify(X ~ Z,
        Y ~ X,
        Y ~ Z, coords = co) %>% 
-  ggdag(node_size = 20, text_size = 8, text = TRUE, text_col = "lightgray") + theme_dag_blank() +
+  ggdag() + 
+  geom_dag_point(colour = c("#0F710B", "#DA70D6", "#0000FF")) + 
+  geom_dag_text(size = 8) +
+  theme_dag_blank() +
   geom_dag_edges(arrow_directed = grid::arrow(length = grid::unit(15, "pt"), type = "closed"))  + 
   geom_text(label = "Z - Intelligence\nX - Learning Time\nY - Test Score", 
             hjust = 1, vjust = 1,
@@ -112,18 +106,24 @@ co <- data.frame(x=c(0,0,1,-1), y=c(1,0,0,0), name=c("Z", "X", "Y", "E"))
 DAG_Experiment <- dagify(Y ~ X,
        X ~ E,
        Y ~ Z, coords = co) %>% 
-  ggdag(node_size = 20, text_size = 8, text = TRUE, text_col = "lightgray") + theme_dag_blank() +
+  ggdag() + 
+  geom_dag_point(colour = c("#FF8811", "#0F710B", "#DA70D6","#0000FF")) + 
+  geom_dag_text(size = 8) +
+  theme_dag_blank() +
   geom_dag_edges(arrow_directed = grid::arrow(length = grid::unit(15, "pt"), type = "closed"))  + 
   geom_text(label = "Z - Intelligence\nX - Learning Time\nY - Test Score\nE - Experimenter", 
             hjust = 0, vjust = 1,
             x = -1.1, y = 0.75, size = 7, color = "darkgrey")
 
 # Collider
-co <- data.frame(x=c(0,1,2), y=c(1,0,1), name=c("Y","Z","X"))
+co <- data.frame(x=c(2,1,0), y=c(1,0,1), name=c("Y","Z","X"))
 
 DAG_Collider <- dagify(Z ~ Y,
                   Z ~ X, coords = co) %>% 
-  ggdag(node_size = 20, text_size = 8, text = TRUE, text_col = "lightgray") + theme_dag_blank() +
+  ggdag() +
+  geom_dag_point(colour = c("#0F710B","#0000FF", "#DA70D6")) + 
+  geom_dag_text(size = 8) +
+  theme_dag_blank() +
   geom_dag_edges(arrow_directed = grid::arrow(length = grid::unit(15, "pt"), type = "closed"))  + 
   geom_text(label = "Y - Looking\nX - Kindness\nZ - Date",
             hjust = 0.5, vjust = 1,
@@ -186,7 +186,7 @@ Or as [Thomas Lumley](https://notstatschat.rbind.io/2021/05/02/generalisability-
 install.packages("mosaic")
 ```
 
-- I will use [https://tweedback.de/?l=en](https://tweedback.de/?l=en) for anonymous realtime feedback. Our Session-ID is **xxxx**.
+- I will use [https://tweedback.de/?l=en](https://tweedback.de/?l=en) for anonymous realtime feedback. Our Session-ID is .olive[**xxxx**].
 
 ---
 
@@ -387,7 +387,7 @@ coef(res2_S1)
 
 ---
 
-## With or without Knowing?
+## With or Without Knowing?
 
 Which estimator is better for estimating the total causal effect of .green[learning], i.e. the estimated average effect on .blue[understanding] by an unit increase of .green[learning]?
 
@@ -423,7 +423,7 @@ Which estimator is better for estimating the total causal effect of .green[learn
 
 ## Lesson Learned First Simulation (?)
 
-Adjusting for a Mediator?
+Adjusting for a Mediator (for total causal effect)?
 
 --
 
@@ -524,7 +524,7 @@ coef(res2_S2)
 
 ---
 
-## With or without Intelligence?
+## With or Without Intelligence?
 
 Which estimator is better for estimating the total causal effect of .green[learning time], i.e. the estimated average effect on .blue[test score] by an unit increase of .green[learning time]?
 
@@ -557,7 +557,7 @@ Which estimator is better for estimating the total causal effect of .green[learn
 ## Randomized Controlled Trial
 
 .pull-left[
-Within a randomized controlled trial observation $i$ is randomly assigned to $\color{green}{x}_i$. The connections to the *parents* of $\color{green}{X}$ is cut.
+Within a randomized controlled trial observation $i$ is randomly assigned to $\color{green}{x}_i$. The connections to the *parents* of $\color{green}{X}$ is cut by the .orange[experimenter].
 ]
 
 .pull-right[
@@ -682,7 +682,7 @@ coef(res2_S3)
 
 ---
 
-## With or without Dating?
+## With or Without Dating?
 
 Which estimator is better for estimating the total causal effect of .green[look], i.e. the estimated average effect on .blue[kind] by an unit increase of .green[look]?
 
@@ -868,7 +868,7 @@ class: center, inverse, middle
 
 .center[Simulated Data to Introduce Causal Inference]
 
-`r fontawesome("hand-point-right", style = "solid")` Causality and directed acyclic graphs together with data simulations may provide a framework to think about the data generating process and the consequences thereof for choosing an estimator for your estimand (and to understand what is going on in Simpson’s or Berkson’s paradox).
+`r fontawesome("hand-point-right", style = "solid")` Causality and directed acyclic graphs together with data simulations provide a framework to think about the data generating process. These assumptions have consequences for choosing an estimator for the estimand of interest. Toy examples help to understand what is going on in Simpson’s or Berkson’s paradox.
 
 
 
