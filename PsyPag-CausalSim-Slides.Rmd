@@ -690,7 +690,7 @@ Which estimator is better for estimating the total causal effect of .green[look]
 
 .olive[**A**]: *Without* adjusting for .violet[date]: $\hat{\beta}_{\color{green}{look}} = `r round(coef(res1_S3)[2],2)`$ (`res1_S3`).
 
-.olive[**B**]: *With* adjusting for .violet[Intelligence]: $\hat{\beta}_{\color{green}{look}} = `r round(coef(res2_S3)[2],2)`$ (`res2_S3`).
+.olive[**B**]: *With* adjusting for .violet[date]: $\hat{\beta}_{\color{green}{look}} = `r round(coef(res2_S3)[2],2)`$ (`res2_S3`).
 
 ---
 
