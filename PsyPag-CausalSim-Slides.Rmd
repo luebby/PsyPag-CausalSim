@@ -186,7 +186,7 @@ Or as [Thomas Lumley](https://notstatschat.rbind.io/2021/05/02/generalisability-
 install.packages("mosaic")
 ```
 
-- I will use [https://tweedback.de/?l=en](https://tweedback.de/?l=en) for anonymous realtime feedback. Our Session-ID is .olive[**xxxx**].
+- I will use [https://tweedback.de/?l=en](https://tweedback.de/?l=en) for anonymous realtime feedback. Our Session-ID is .olive[**5rhs**].
 
 ---
 
@@ -892,9 +892,13 @@ Some literature on the relationship to Structural Equation Models:
 
 - [Rohrer, J. M., Hünermund, P., Arslan, R. C., & Elson, M.  (2021). That’s a Lot to PROCESS! Pitfalls of Popular Path Models. PsyArXiv.](https://doi.org/10.31234/osf.io/paeb7)
 
-Crash course for variable selection:
+Guidance on using DAGs in practice:
 
-- [Cinelli, C., Forney, A., & Pearl, J. (2020). A Crash Course in Good and Bad Controls. Available at SSRN 3689437.](https://dx.doi.org/10.2139/ssrn.3689437)
+- [Tennant, PWG et al. (2021)]. Use of directed acyclic graphs (DAGs) to identify confounders in applied health research: review and recommendations. International Journal of Epidemiology, 50(2), 620–632.](https://doi.org/10.1093/ije/dyaa213)
+
+
+
+
 
 ---
 
@@ -908,7 +912,7 @@ Crash course for variable selection:
 
 .footnote[[via GIPHY](https://giphy.com/gifs/people-hd-gifsremastered-10Jpr9KSaXLchW), inspiration [@rlmcelreath](https://twitter.com/rlmcelreath/status/1318113949074771968)]
 
-Is (unconscious?) wishful thinking really better? 
+Do you criticize Pythagoras for that you need to know two out of three sides to calculate the third in a right triangle?
 
 ---
 
