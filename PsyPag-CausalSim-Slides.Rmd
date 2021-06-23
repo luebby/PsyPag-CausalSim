@@ -894,7 +894,7 @@ Some literature on the relationship to Structural Equation Models:
 
 Guidance on using DAGs in practice:
 
-- [Tennant, PWG et al. (2021)]. Use of directed acyclic graphs (DAGs) to identify confounders in applied health research: review and recommendations. International Journal of Epidemiology, 50(2), 620–632.](https://doi.org/10.1093/ije/dyaa213)
+- [Tennant, PWG et al. (2021). Use of directed acyclic graphs (DAGs) to identify confounders in applied health research: review and recommendations. International Journal of Epidemiology, 50(2), 620–632.](https://doi.org/10.1093/ije/dyaa213)
 
 
 
